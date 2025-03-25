@@ -7,27 +7,47 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <!-- 顶部标题区 -->
-    <header class="header">
-        <h1>Life Coach AI</h1>
-        <p>您的个人成长与发展助手</p>
-    </header>
-
-    <!-- 中间对话区 -->
-    <main class="chat-container">
-        <div id="chat-messages" class="chat-messages">
-            <!-- 对话内容将在这里动态显示 -->
-            <div class="message ai-message">
-                <div class="message-content">您好！我是您的Life Coach AI助手。今天我能为您提供什么帮助？</div>
-            </div>
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Life Coach AI</h2>
         </div>
-    </main>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="#" class="active"><i class="icon-chat"></i>聊天</a></li>
+                <li><a href="#"><i class="icon-history"></i>历史记录</a></li>
+                <li><a href="#"><i class="icon-settings"></i>设置</a></li>
+                <li><a href="#"><i class="icon-sync"></i>同步到Flomo</a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">
+            <p>版本 0.1.0</p>
+        </div>
+    </aside>
 
-    <!-- 底部输入区 -->
-    <footer class="input-container">
-        <textarea id="user-input" placeholder="请输入您的问题或想法..." rows="2"></textarea>
-        <button id="send-button">发送</button>
-    </footer>
+    <div class="main-content">
+        <!-- 顶部标题区 -->
+        <header class="header">
+            <h1>Life Coach AI</h1>
+            <p>您的个人成长与发展助手</p>
+        </header>
+
+        <!-- 中间对话区 -->
+        <main class="chat-container">
+            <div id="chat-messages" class="chat-messages">
+                <!-- 对话内容将在这里动态显示 -->
+                <div class="message ai-message">
+                    <div class="message-content">您好！我是您的Life Coach AI助手。今天我能为您提供什么帮助？</div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 底部输入区 -->
+        <footer class="input-container">
+            <textarea id="user-input" placeholder="请输入您的问题或想法..." rows="2"></textarea>
+            <button id="send-button">发送</button>
+        </footer>
+    </div>
 
     <script src="script.js"></script>
 </body>

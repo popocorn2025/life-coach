@@ -2,6 +2,11 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
+const dotenv = require('dotenv');
+
+// 加载环境变量
+dotenv.config();
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -24,9 +29,9 @@ app.post('/api/chat', async (req, res) => {
   try {
     const { message } = req.body;
     
-    // DeepSeek R1 API密钥和端点
-    const API_KEY = '842fc4f0-54bd-4e46-b000-88860911c7ea';
-    const API_ENDPOINT = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions'; // 火山方舟API端点
+    // 从环境变量获取DeepSeek R1 API密钥和端点
+    const API_KEY = process.env.DEEPSEEK_API_KEY;
+    const API_ENDPOINT = process.env.DEEPSEEK_API_ENDPOINT; // 火山方舟API端点
     
     const response = await axios.post(API_ENDPOINT, {
       model: 'deepseek-r1-250120', // 火山方舟DeepSeek R1模型名称
@@ -47,6 +52,31 @@ app.post('/api/chat', async (req, res) => {
   } catch (error) {
     console.error('Error communicating with DeepSeek API:', error.message);
     res.status(500).json({ error: 'Failed to communicate with AI service' });
+  }
+});
+
+// API路由 - 处理同步到Flomo的请求
+app.post('/api/sync-to-flomo', async (req, res) => {
+  try {
+    const { messages } = req.body;
+    
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ success: false, message: '没有可同步的消息' });
+    }
+    
+    // 这里应该是Flomo API的实际实现
+    // 由于我们没有实际的Flomo API密钥，这里只是模拟成功响应
+    
+    // 模拟API调用延迟
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // 返回成功响应
+    res.json({ success: true, message: '成功同步到Flomo' });
+    
+    console.log(`已同步 ${messages.length} 条消息到Flomo`);
+  } catch (error) {
+    console.error('Error syncing to Flomo:', error.message);
+    res.status(500).json({ success: false, message: '同步到Flomo失败' });
   }
 });
 

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatMessages = document.getElementById('chat-messages');
     const userInput = document.getElementById('user-input');
     const sendButton = document.getElementById('send-button');
+    const syncButton = document.querySelector('.icon-sync').parentElement;
 
     // 发送消息函数
     async function sendMessage() {
@@ -81,4 +82,56 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // 自动聚焦到输入框
     userInput.focus();
+    
+    // 同步到Flomo功能
+    syncButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        // 获取所有聊天记录
+        const messages = Array.from(chatMessages.querySelectorAll('.message'));
+        if (messages.length === 0) {
+            alert('没有可同步的聊天记录');
+            return;
+        }
+        
+        try {
+            // 显示同步中状态
+            const syncStatus = addMessage('正在同步到Flomo...', 'ai');
+            
+            // 准备同步数据
+            const syncData = messages.map(msg => {
+                const content = msg.querySelector('.message-content').textContent;
+                const isUser = msg.classList.contains('user-message');
+                return {
+                    role: isUser ? 'user' : 'ai',
+                    content: content
+                };
+            });
+            
+            // 发送同步请求到后端
+            const response = await fetch('/api/sync-to-flomo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ messages: syncData })
+            });
+            
+            if (!response.ok) {
+                throw new Error('同步失败');
+            }
+            
+            const result = await response.json();
+            
+            // 移除同步状态消息
+            chatMessages.removeChild(syncStatus);
+            
+            // 显示同步结果
+            addMessage(result.success ? '同步到Flomo成功！' : '同步到Flomo失败：' + result.message, 'ai');
+            
+        } catch (error) {
+            console.error('Sync Error:', error);
+            addMessage('同步到Flomo时发生错误，请稍后再试。', 'ai');
+        }
+    });
 });
