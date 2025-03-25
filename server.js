@@ -19,15 +19,16 @@ app.disable('x-powered-by');
 // 添加全局中间件来设置安全响应头
 app.use((req, res, next) => {
   // 基本安全响应头
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
+   res.setHeader('X-Content-Type-Options', 'nosniff');
   
-  // 使用frame-ancestors替代X-Frame-Options
+  // 内容安全策略
   res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'");
   
   // 添加缓存控制
-  res.setHeader('Cache-Control', 'no-store, max-age=0');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
   res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
   
   next();
 });
@@ -59,7 +60,7 @@ app.post('/api/chat', async (req, res) => {
     }
 
     const response = await axios.post(API_ENDPOINT, {
-      model: 'deepseek-r1-250120', // 火山方舟DeepSeek R1模型名称
+      model: 'deepseek-chat', // DeepSeek Chat模型名称
       messages: [
         { role: 'system', content: 'You are a helpful life coach AI assistant.' },
         { role: 'user', content: message }
@@ -72,47 +73,13 @@ app.post('/api/chat', async (req, res) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${API_KEY}`,
         'Accept': 'application/json'
-      }
+      },
+      timeout: 30000 // 设置30秒超时
     });
     
-    // 检查并处理API响应格式
-    if (!response.data) {
-      throw new Error('API响应为空');
+    if (response.status !== 200) {
+      throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
     }
-    
-    // 打印API响应以便调试
-    console.log('DeepSeek API Response:', JSON.stringify(response.data, null, 2));
-    
-    // 适配DeepSeek API的响应格式
-    let aiContent = '';
-    if (response.data.choices && response.data.choices[0]) {
-      if (response.data.choices[0].message) {
-        aiContent = response.data.choices[0].message.content;
-      } else if (response.data.choices[0].text) {
-        aiContent = response.data.choices[0].text;
-      }
-    } else if (response.data.text) {
-      aiContent = response.data.text;
-    } else if (response.data.response) {
-      aiContent = response.data.response;
-    }
-    
-    if (!aiContent) {
-      console.error('无法从API响应中提取内容:', response.data);
-      aiContent = '抱歉，我现在无法回答您的问题。';
-    }
-    
-    const aiResponse = {
-      choices: [{
-        message: {
-          role: 'assistant',
-          content: aiContent
-        }
-      }]
-    };
-    
-    // 返回处理后的响应数据
-    res.json(aiResponse);
     
     // 检查并处理API响应格式
     if (!response.data) {
