@@ -13,6 +13,15 @@ const PORT = process.env.PORT || 3000;
 // 启用CORS，允许前端页面访问API
 app.use(cors());
 
+// 添加全局中间件来设置安全响应头
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline'");
+  next();
+});
+
 // 解析JSON请求体
 app.use(express.json());
 
@@ -21,6 +30,12 @@ app.use(express.static(path.join(__dirname, '/')));
 
 // 主页路由
 app.get('/', (req, res) => {
+  // 添加安全响应头
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Content-Security-Policy', "default-src 'self' 'unsafe-inline'");
+  
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
@@ -48,6 +63,12 @@ app.post('/api/chat', async (req, res) => {
       }
     });
     
+    // 添加安全响应头
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Content-Security-Policy', "default-src 'self'");
+    
     res.json(response.data);
   } catch (error) {
     console.error('Error communicating with DeepSeek API:', error.message);
@@ -61,6 +82,12 @@ app.post('/api/sync-to-flomo', async (req, res) => {
     const { messages } = req.body;
     
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      // 添加安全响应头
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      res.setHeader('X-XSS-Protection', '1; mode=block');
+      res.setHeader('X-Frame-Options', 'DENY');
+      res.setHeader('Content-Security-Policy', "default-src 'self'");
+      
       return res.status(400).json({ success: false, message: '没有可同步的消息' });
     }
     
@@ -70,12 +97,25 @@ app.post('/api/sync-to-flomo', async (req, res) => {
     // 模拟API调用延迟
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // 添加安全响应头
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Content-Security-Policy', "default-src 'self'");
+    
     // 返回成功响应
     res.json({ success: true, message: '成功同步到Flomo' });
     
     console.log(`已同步 ${messages.length} 条消息到Flomo`);
   } catch (error) {
     console.error('Error syncing to Flomo:', error.message);
+    
+    // 添加安全响应头，即使在错误情况下
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('Content-Security-Policy', "default-src 'self'");
+    
     res.status(500).json({ success: false, message: '同步到Flomo失败' });
   }
 });
