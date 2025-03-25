@@ -42,12 +42,17 @@ document.addEventListener('DOMContentLoaded', () => {
             chatMessages.removeChild(loadingMessage);
             
             // 添加AI回复到聊天区
-            const aiResponse = data.choices[0].message.content;
-            addMessage(aiResponse, 'ai');
+            if (data && data.choices && data.choices[0] && data.choices[0].message) {
+                const aiResponse = data.choices[0].message.content;
+                addMessage(aiResponse, 'ai');
+            } else {
+                throw new Error('无效的API响应格式');
+            }
             
         } catch (error) {
             console.error('Error:', error);
-            addMessage('抱歉，发生了一些错误，请稍后再试。', 'ai');
+            const errorMessage = error.message || '抱歉，发生了一些错误，请稍后再试。';
+            addMessage(errorMessage, 'ai');
         }
     }
     
@@ -126,12 +131,18 @@ document.addEventListener('DOMContentLoaded', () => {
             // 移除同步状态消息
             chatMessages.removeChild(syncStatus);
             
-            // 显示同步结果
-            addMessage(result.success ? '同步到Flomo成功！' : '同步到Flomo失败：' + result.message, 'ai');
+xx            // 显示同步结果
+            if (result && typeof result.success === 'boolean') {
+                const message = result.success ? '同步到Flomo成功！' : `同步到Flomo失败：${result.message || '未知错误'}`;
+                addMessage(message, 'ai');
+            } else {
+                throw new Error('无效的同步响应格式');
+            }
             
         } catch (error) {
             console.error('Sync Error:', error);
-            addMessage('同步到Flomo时发生错误，请稍后再试。', 'ai');
+            const syncErrorMessage = error.message || '同步到Flomo时发生错误，请稍后再试。';
+            addMessage(syncErrorMessage, 'ai');
         }
     });
 });

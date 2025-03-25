@@ -60,7 +60,7 @@ app.post('/api/chat', async (req, res) => {
     }
 
     const response = await axios.post(API_ENDPOINT, {
-      model: 'deepseek-chat', // DeepSeek Chat模型名称
+      model: 'deepseek-r1-250120', // DeepSeek R1模型名称
       messages: [
         { role: 'system', content: 'You are a helpful life coach AI assistant.' },
         { role: 'user', content: message }
@@ -78,11 +78,14 @@ app.post('/api/chat', async (req, res) => {
     });
     
     if (response.status !== 200) {
+      console.error('API响应状态码:', response.status);
+      console.error('API响应内容:', response.data);
       throw new Error(`API请求失败: ${response.status} ${response.statusText}`);
     }
     
     // 检查并处理API响应格式
     if (!response.data) {
+      console.error('API响应为空');
       throw new Error('API响应为空');
     }
     
