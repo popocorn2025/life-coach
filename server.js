@@ -72,9 +72,13 @@ app.post('/api/chat', async (req, res) => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${API_KEY}`,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Origin': process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
       },
-      timeout: 30000 // 设置30秒超时
+      timeout: 60000, // 增加超时时间到60秒
+      validateStatus: function(status) {
+        return status >= 200 && status < 500; // 接受200-499的状态码
+      }
     });
     
     if (response.status !== 200) {

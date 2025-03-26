@@ -6,20 +6,15 @@
       "use": "@vercel/node"
     },
     {
-      "src": "*.html",
+      "src": "public/**",
       "use": "@vercel/static"
-    },
-    {
-      "src": "*.css",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "*.js",
-      "use": "@vercel/static",
-      "config": { "excludeFiles": "server.js" }
     }
   ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server.js"
+    },
     {
       "src": "/styles.css",
       "dest": "/styles.css"
@@ -29,12 +24,11 @@
       "dest": "/script.js"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "/index.html"
     }
-  ]
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
 }
