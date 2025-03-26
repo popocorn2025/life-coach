@@ -16,6 +16,10 @@
       "dest": "server.js"
     },
     {
+      "src": "/favicon.ico",
+      "dest": "/public/favicon.ico"
+    },
+    {
       "src": "/styles.css",
       "dest": "/styles.css"
     },
