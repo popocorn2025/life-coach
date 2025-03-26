@@ -19,22 +19,27 @@ document.addEventListener('DOMContentLoaded', () => {
         // 添加用户消息到聊天区
         addMessage(message, 'user');
         
-        try {
-            // 显示加载状态
-            const loadingMessage = addMessage('正在思考...', 'ai');
-            
-            // 发送请求到后端
-            const response = await fetch('/api/chat', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ message })
-            });
-            
-            if (!response.ok) {
-                throw new Error('网络请求失败');
-            }
+        const maxRetries = 3;
+        let retryCount = 0;
+        
+        while (retryCount < maxRetries) {
+            try {
+                // 显示加载状态
+                const loadingMessage = addMessage('正在思考...', 'ai');
+                
+                // 发送请求到后端
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `请求失败 (${response.status}: ${response.statusText})`);
+                }
             
             const data = await response.json();
             

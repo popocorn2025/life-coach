@@ -19,16 +19,24 @@ app.disable('x-powered-by');
 // 添加全局中间件来设置安全响应头
 app.use((req, res, next) => {
   // 基本安全响应头
-   res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   
   // 内容安全策略
-  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'");
+  res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; img-src 'self' data:; frame-ancestors 'none'");
   
-  // 添加缓存控制
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.setHeader('Surrogate-Control', 'no-store');
+  // 缓存控制 - 根据请求路径设置不同的缓存策略
+  if (req.path.startsWith('/api/')) {
+    // API请求不缓存
+    res.setHeader('Cache-Control', 'no-store');
+  } else if (req.path.match(/\.(css|js|ico)$/)) {
+    // 静态资源缓存1天
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+  } else {
+    // 其他资源使用协商缓存
+    res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+  }
   
   next();
 });
